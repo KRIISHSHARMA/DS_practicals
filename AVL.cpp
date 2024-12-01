@@ -18,18 +18,20 @@ class Node
 
 class BST
 {
-    protected :
+    protected:
     Node* root;
 
-    Node * insert(Node * root , int data)
+    Node* insert(Node* root, int data)
     {
-        if(root == nullptr) return new Node(data);
+        if (root == nullptr) return new Node(data);
         if (data < root->data)
         {
-            root->left = insert(root->left , data);
+            root->left = insert(root->left, data);
         }
-        else root->right = insert(root->right , data);
-
+        else
+        {
+            root->right = insert(root->right, data);
+        }
         return root;
     }
 
@@ -42,29 +44,28 @@ class BST
         return root;
     }
 
-
-    Node * deleteN(Node *root , int data)
+    Node* deleteN(Node* root, int data)
     {
-        if(root == nullptr) return nullptr;
+        if (root == nullptr) return nullptr;
         
-        if(data < root->data) root->left = deleteN(root->left, data);
-        else if(data > root->data) root->right = deleteN(root->right, data);
+        if (data < root->data) root->left = deleteN(root->left, data);
+        else if (data > root->data) root->right = deleteN(root->right, data);
         else {
-        // Node found, handle deletion
-        if (root->left == nullptr) { // Case 1 or Case 2 (right child exists or no children)
-            Node* temp = root->right;
-            delete root;
-            return temp;
-        } else if (root->right == nullptr) { // Case 2 (left child exists)
-            Node* temp = root->left;
-            delete root;
-            return temp;
-        }
+            // Node found, handle deletion
+            if (root->left == nullptr) { // Case 1 or Case 2 (right child exists or no children)
+                Node* temp = root->right;
+                delete root;
+                return temp;
+            } else if (root->right == nullptr) { // Case 2 (left child exists)
+                Node* temp = root->left;
+                delete root;
+                return temp;
+            }
 
-        // Case 3: Two children
-        Node* temp = findMin(root->right); // Find in-order successor
-        root->data = temp->data; // Replace with in-order successor's value
-        root->right = deleteN(root->right, temp->data); // Delete in-order successor
+            // Case 3: Two children
+            Node* temp = findMin(root->right); // Find in-order successor
+            root->data = temp->data; // Replace with in-order successor's value
+            root->right = deleteN(root->right, temp->data); // Delete in-order successor
         }
 
         return root;
@@ -100,14 +101,9 @@ class BST
         return 1 + max(height(root->left), height(root->right));
     }
 
-    public :
+    public:
     BST() {
         root = nullptr;
-    }
-
-    void insertdata(int data)
-    {
-       root = insert(root , data);
     }
 
     void displayPreorder() 
@@ -133,7 +129,7 @@ class BST
 
     void deleteNode(int data)
     {
-        root = deleteN(root , data);
+        root = deleteN(root, data);
     }
 
     int heightT()
@@ -145,24 +141,78 @@ class BST
     {
         return root->data;
     }
-
 };
 
 class AVL : public BST
 {
-    public:
-    AVL () : BST() {}
-
-    int balance()
+    private: 
+    int balance(Node* root)
     {
-      if (root == nullptr) return -1;
-      return height(root->left) - height(root->right);
+        if (root == nullptr) return 0; 
+        return height(root->left) - height(root->right);
     }
 
-    Node* insert(Node* root , int data)
+    Node* RR(Node* y)
     {
-        root = BST::insert(root , data);
-        
+        Node* x = y->left;
+        Node* T2 = x->right;
+        x->right = y;
+        y->left = T2;
+        return x;
+    }
+
+    Node* LL(Node* x)
+    {
+        Node* y = x->right;
+        Node* T2 = y->left;
+        y->left = x;
+        x->right = T2;
+        return y;
+
+    }
+    Node* LR(Node* root)
+    {
+        root->left = LL(root->left);
+        return RR(root);
+    }
+
+    Node* RL(Node* root)
+    {
+        root->right = RR(root->right);
+        return LL(root);
+    }
+
+    Node* insert(Node* root, int data)
+    {
+        root = BST::insert(root, data);  
+
+        int BF = balance(root);  
+
+        // LL case
+        if (BF > 1 && data < root->left->data) 
+            return RR(root);
+
+        // RR case
+        if (BF < -1 && data > root->right->data) 
+            return LL(root);
+
+        // LR case
+        if (BF > 1 && data > root->left->data) 
+            return LR(root);
+
+        // RL case
+        if (BF < -1 && data < root->right->data) 
+            return RL(root);
+
+        return root;
+    }
+
+    public:
+    AVL() : BST() {}
+
+    void insertdata(int data)
+    {
+        root = insert(root, data); 
     }
 };
 
@@ -172,9 +222,9 @@ int main()
     tree.insertdata(10);
     tree.insertdata(20);
     tree.insertdata(30);
-    printf("root : %d\n",tree.returnHeadData());
-    tree.displayInorder();
+    printf("root : %d\n", tree.returnHeadData());
+    tree.insertdata(40);
+    tree.displayPreorder();
     
     return 0;
 }
-
