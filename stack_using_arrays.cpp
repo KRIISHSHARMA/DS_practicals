@@ -1,4 +1,5 @@
 #include <iostream>
+#include <queue>
 using namespace std;
 #define MAX 10
 
@@ -7,6 +8,7 @@ class Stack
     private : 
     int arr[MAX];
     int top;
+    
 
     public :
     Stack() : top(-1) {}
