@@ -212,7 +212,7 @@ class AVL : public BST
 
     void insertdata(int data)
     {
-        root = insert(root, data); 
+        root = insert(root, data);  
     }
 };
 
